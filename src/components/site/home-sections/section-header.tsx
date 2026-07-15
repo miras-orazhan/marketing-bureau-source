@@ -3,6 +3,7 @@
 type SectionHeaderProps = {
   label?: string
   title: string
+  /** HTML-строка из rich-text editor (например, expertiseSectionText). Рендерится через dangerouslySetInnerHTML. */
   text?: string
   primaryColor: string
   accentColor: string
@@ -34,9 +35,14 @@ export function SectionHeader({
         {title}
       </h2>
       {text && (
-        <p className="text-muted-foreground leading-relaxed text-base md:text-lg">
-          {text}
-        </p>
+        // ВАЖНО: text — это HTML из rich-text editor (TipTap). Раньше рендерился
+        // как {text} (React-экранирование → теги показывались как &lt;p&gt;).
+        // Теперь через dangerouslySetInnerHTML — теги работают как настоящие.
+        // .prose применяет Tailwind Typography (margin, line-height и т.д.).
+        <div
+          className="article-content prose prose-sm max-w-none text-muted-foreground leading-relaxed text-base md:text-lg"
+          dangerouslySetInnerHTML={{ __html: text }}
+        />
       )}
     </div>
   )

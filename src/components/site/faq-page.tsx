@@ -23,9 +23,12 @@ export function FaqPage({ settings, items, onContact }: FaqPageProps) {
         <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: settings.primaryColor }}>
           {settings.faqSectionTitle}
         </h1>
-        <p className="text-muted-foreground leading-relaxed">
-          {settings.faqSectionText}
-        </p>
+        {settings.faqSectionText && (
+          <div
+            className="article-content prose prose-sm max-w-none text-muted-foreground leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: settings.faqSectionText }}
+          />
+        )}
       </header>
 
       {items.length === 0 ? (

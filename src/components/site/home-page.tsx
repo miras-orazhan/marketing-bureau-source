@@ -150,9 +150,12 @@ export function HomePage({
             }}
           >
             <h2 className="text-2xl md:text-3xl font-bold mb-4">О нашем портале</h2>
-            <p className="text-white/90 leading-relaxed max-w-3xl">
-              {settings.aboutText}
-            </p>
+            {settings.aboutText && (
+              <div
+                className="article-content prose prose-sm max-w-3xl text-white/90 leading-relaxed [&_a]:text-white [&_a]:underline"
+                dangerouslySetInnerHTML={{ __html: settings.aboutText }}
+              />
+            )}
           </div>
         </section>
       )}

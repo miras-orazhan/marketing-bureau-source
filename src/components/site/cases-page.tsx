@@ -22,9 +22,12 @@ export function CasesPage({ settings, items, onContact, onOpenCase }: CasesPageP
         <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: settings.primaryColor }}>
           {settings.casesSectionTitle}
         </h1>
-        <p className="text-muted-foreground leading-relaxed">
-          {settings.casesSectionText}
-        </p>
+        {settings.casesSectionText && (
+          <div
+            className="article-content prose prose-sm max-w-none text-muted-foreground leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: settings.casesSectionText }}
+          />
+        )}
       </header>
 
       {items.length === 0 ? (
