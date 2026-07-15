@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
@@ -14,6 +14,23 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+/**
+ * Viewport — генерируется на основе настроек сайта.
+ * В Next.js 16 themeColor и relatedApplications живут здесь, а не в metadata.
+ */
+export async function generateViewport(): Promise<Viewport> {
+  const s = await getSiteSettings()
+  return {
+    // Цвет адресной строки в мобильных браузерах (Chrome/Safari) —
+    // делает сайт более нативным на телефоне.
+    themeColor: s.primaryColor,
+    // Корректный масштаб на мобильных
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  }
+}
 
 /**
  * Базовые (fallback) мета-данные для всего сайта.
