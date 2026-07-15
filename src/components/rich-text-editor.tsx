@@ -139,14 +139,26 @@ export function RichTextEditor({
     immediatelyRender: false,
   })
 
-  // Сброс содержимого, когда внешний value становится пустым
+  // Синхронизация внешнего value с содержимым редактора.
+  // ВАЖНО: обновляем не только при пустом value, а всегда, когда внешний value
+  // отличается от текущего HTML в редакторе (например, при открытии элемента
+  // для редактирования после загрузки из API).
+  // Без этого редактор показывал бы теги как текст при повторном открытии.
   useEffect(() => {
     if (!editor) return
-    if (value === '' && editor.getHTML() !== '') {
-      editor.commands.setContent('', { emitUpdate: false })
+    const current = editor.getHTML()
+    // Если value совпадает с текущим контентом — ничего не делаем (избегаем цикла)
+    if (value === current) return
+    // Если value пустой — очищаем редактор
+    if (value === '' || value == null) {
+      if (current !== '') {
+        editor.commands.setContent('', { emitUpdate: false })
+      }
+      return
     }
-
-  }, [value])
+    // Иначе — обновляем контент без вызова onUpdate (чтобы не зациклиться)
+    editor.commands.setContent(value, { emitUpdate: false })
+  }, [value, editor])
 
   if (!editor) {
     return (

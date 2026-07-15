@@ -34,14 +34,17 @@ export function ExpertiseSection({ settings, items }: ExpertiseSectionProps) {
               >
                 <div className="flex items-start gap-4">
                   <div
-                    className="h-12 w-12 rounded-lg flex items-center justify-center shrink-0 overflow-hidden"
-                    style={{ backgroundColor: settings.accentColor }}
+                    className="h-12 w-12 rounded-lg flex items-center justify-center shrink-0 overflow-hidden bg-transparent"
+                    style={{ backgroundColor: 'transparent' }}
                   >
                     <DynamicIcon
                       name={item.icon}
                       image={item.iconImage}
-                      className="h-6 w-6 text-white"
-                      imgClassName="h-12 w-12 object-cover"
+                      className="h-7 w-7"
+                      // Lucide-иконка рисуется цветом accentColor (фирменный);
+                      // для загруженного изображения фон и так не нужен.
+                      iconStyle={{ color: settings.accentColor }}
+                      imgClassName="h-12 w-12 object-contain"
                       alt={item.title}
                     />
                   </div>

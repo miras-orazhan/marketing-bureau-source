@@ -89,6 +89,8 @@ type DynamicIconProps = {
   /** Если задан — рендерится вместо Lucide-иконки */
   image?: string | null
   className?: string
+  /** Инлайн-стиль для Lucide-иконки (например, color) */
+  iconStyle?: React.CSSProperties
   fallbackName?: string
   /** alt для изображения */
   alt?: string
@@ -104,6 +106,7 @@ export function DynamicIcon({
   name,
   image,
   className,
+  iconStyle,
   fallbackName = 'star',
   alt = 'icon',
   imgClassName,
@@ -123,5 +126,5 @@ export function DynamicIcon({
     )
   }
   const Icon = (name && ICON_MAP[name]) || ICON_MAP[fallbackName] || Star
-  return <Icon className={className} />
+  return <Icon className={className} style={iconStyle} />
 }
