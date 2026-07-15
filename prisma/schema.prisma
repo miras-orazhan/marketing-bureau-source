@@ -1,0 +1,288 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+//
+// ─── ЛОКАЛЬНАЯ РАЗРАБОТКА (SQLite) ─────────────────────
+// Этот файл использует SQLite — удобно для локальной разработки.
+// Для production (Vercel) используйте prisma/schema.prod.prisma (PostgreSQL).
+// Модели в обоих файлах идентичны.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Глобальные настройки сайта — хранятся в одной строке (id = "default")
+model SiteSettings {
+  id              String   @id @default("default")
+  // Брендинг
+  siteName        String   @default("Marketing Bureau")
+  logoUrl         String?
+  logoText        String?
+  // Мета-данные сайта (по умолчанию заполняются, если не заданы)
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+  metaAuthor      String?
+  // Open Graph (для всего сайта, переопределяется на уровне страницы)
+  ogTitle         String?
+  ogDescription   String?
+  ogImage         String?
+  ogType          String?  @default("website")
+  // Twitter Card
+  twitterCard     String?  @default("summary_large_image")
+  twitterTitle    String?
+  twitterDescription String?
+  twitterImage    String?
+  // Иконки
+  favicon         String?
+  // Контакты
+  email           String?
+  phone           String?
+  address         String?
+  // Соц. сети
+  facebook        String?
+  twitter         String?
+  instagram       String?
+  youtube         String?
+  telegram        String?
+  // Тема (3 цвета)
+  backgroundColor String   @default("#ffffff")
+  primaryColor    String   @default("#0f172a")
+  accentColor     String   @default("#10b981")
+  // Доступ (телефон + хэш пароля админа)
+  adminPhone        String   @default("+77758494020")
+  adminPasswordHash String   @default("3fd4bbc71815f28b47c71c53df2efdad3168e8149ac40f09ef4a6979915b46c5") // hashPassword("admin")
+  // Telegram bot для сброса пароля и уведомлений о заявках.
+  // Заполняется через админку → «Настройки сайта» после первого сида.
+  telegramBotToken  String?
+  // Chat ID для отправки заявок с сайта (группа или канал)
+  telegramLeadsChatId String?
+  // Токен сброса пароля (временный)
+  passwordResetToken     String?
+  passwordResetExpires   DateTime?
+  // SEO
+  robotsIndex     Boolean  @default(true)
+  googleAnalytics String?
+  yandexMetrika   String?
+  siteUrl         String?  @default("https://marketingbureau.kz")
+  // Footer / About
+  footerText      String?
+  aboutText       String?
+  aboutContent    String?  // HTML — rich text для страницы «О нас»
+
+  // ─── Контент секций главной страницы ───
+  // HERO
+  heroTitle       String?
+  heroSubtitle    String?
+  heroBackground  String?
+  heroCtaText     String?
+  heroCtaLink     String?
+  heroWhatsappText String?
+  heroWhatsappLink String?
+  // Экспертиза
+  expertiseSectionTitle String?
+  expertiseSectionText  String?
+  // Услуги
+  servicesSectionTitle  String?
+  servicesSectionText   String?
+  // Почему мы
+  whyUsSectionTitle     String?
+  whyUsSectionText      String?
+  // Кейсы
+  casesSectionTitle     String?
+  casesSectionText      String?
+  // FAQ
+  faqSectionTitle       String?
+  faqSectionText        String?
+  // CTA
+  ctaSectionTitle       String?
+  ctaSectionText        String?
+  ctaButtonText         String?
+  ctaButtonLink         String?
+  ctaBackground         String?  // URL фонового изображения CTA-баннера
+  ctaBullet1            String?  // Текст преимущества 1
+  ctaBullet2            String?  // Текст преимущества 2
+  ctaBullet3            String?  // Текст преимущества 3
+
+  updatedAt       DateTime @updatedAt
+}
+
+/// Постраничные SEO-метаданные.
+/// Одна строка на страницу (slug = home, services, cases, about, blog, news, faq).
+/// Если поле пустое — применяется дефолт из getEffectivePageMeta().
+model PageMeta {
+  id                  String   @id @default(cuid())
+  slug                String   @unique
+  title               String?
+  description         String?
+  keywords            String?
+  ogTitle             String?
+  ogDescription       String?
+  ogImage             String?
+  twitterTitle        String?
+  twitterDescription  String?
+  twitterImage        String?
+  robotsIndex         Boolean  @default(true)
+  canonicalUrl        String?
+  schemaOrg           String?  // JSON-LD строка
+  updatedAt           DateTime @updatedAt
+}
+
+/// Услуги
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  content     String?  // HTML из rich text editor
+  icon        String?  // имя иконки из Lucide (если нет iconImage)
+  iconImage   String?  // URL кастомного изображения-иконки (приоритет над icon)
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Кейсы (проекты)
+model CaseItem {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  client      String?
+  excerpt     String?
+  content     String?  // HTML
+  coverImage  String?
+  results     String?  // например: "+150% трафика"
+  tags        String?  // JSON-массив строк
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Элементы FAQ
+model FaqItem {
+  id          String   @id @default(cuid())
+  question    String
+  answer      String   // HTML
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Экспертиза (что мы умеем)
+model ExpertiseItem {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  icon        String?
+  iconImage   String?  // URL кастомного изображения (приоритет над icon)
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// «Почему мы» (преимущества)
+model WhyUsItem {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  icon        String?
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Универсальная модель для статей и новостей (type = "ARTICLE" | "NEWS")
+model Article {
+  id          String   @id @default(cuid())
+  type        String   @default("ARTICLE") // ARTICLE | NEWS
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  content     String   // HTML из rich text editor
+  coverImage  String?
+  published   Boolean  @default(false)
+  featured    Boolean  @default(false)
+  author      String?
+  tags        String?  // JSON-массив строк
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  publishedAt DateTime?
+
+  @@index([type, published, publishedAt(sort: Desc)])
+  @@index([type, featured])
+}
+
+/// Заявки с CTA-формы (имя + телефон + опционально email/сообщение)
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  message   String?
+  source    String?  // например: 'home-cta', 'services-cta'
+  createdAt DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+}
+
+/// Загруженные изображения (хранятся в БД, чтобы не теряться между preview-сессиями)
+model UploadedFile {
+  id        String   @id @default(cuid())
+  filename  String   @unique
+  mimeType  String
+  data      Bytes
+  size      Int
+  createdAt DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+}
+
+/// Редактируемый контент страницы политики конфиденциальности
+model PrivacyContent {
+  id          String   @id @default("default")
+  title       String   @default("Политика конфиденциальности")
+  intro       String?  // вступительный абзац
+  content     String   // HTML — основной текст политики
+  updatedAt   DateTime @updatedAt
+}
+
+/// Участники админки — каждый со своим телефоном, паролем и Telegram chat_id
+model AdminMember {
+  id                    String   @id @default(cuid())
+  name                  String
+  phone                 String   @unique
+  passwordHash          String
+  telegramChatId        String?
+  role                  String   @default("admin")
+  published             Boolean  @default(true)
+  passwordResetToken    String?
+  passwordResetExpires  DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+/// Социальные сети — управляются админкой (CRUD).
+/// Название + URL + иконка (Lucide-имя ИЛИ загруженное изображение) + порядок.
+model SocialLink {
+  id          String   @id @default(cuid())
+  name        String                       // отображаемое название (Facebook, Instagram, ...)
+  url         String                       // абсолютный URL
+  icon        String?                      // имя Lucide-иконки (если нет iconImage)
+  iconImage   String?                      // URL кастомного изображения (приоритет над icon)
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
