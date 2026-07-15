@@ -35,7 +35,8 @@ bun.lockb
 next-env.d.ts
 
 # database (только для локальной SQLite — на production используем PostgreSQL)
-db/
+# ВАЖНО: ведущий слэш — чтобы не исключить случайно src/.../db/ в будущем
+/db/
 *.db
 *.db-journal
 
@@ -44,8 +45,8 @@ dev.log
 server.log
 *.log
 
-# upload temp (sandbox-only)
-upload/
+# upload temp (sandbox-only) — только корневая папка, не src/app/api/upload/
+/upload/
 
 # IDE
 .idea/
