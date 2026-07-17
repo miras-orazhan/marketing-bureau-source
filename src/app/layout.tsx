@@ -99,6 +99,24 @@ export default async function RootLayout({
           gaId={s.googleAnalytics}
           yandexMetrikaId={s.yandexMetrika}
         />
+        {/* PRELOAD LCP-изображения — heroBackground (384KB WebP).
+            Без этого браузер начинает загрузку только после полного разбора HTML+CSS,
+            что добавляет 2-4 сек к LCP. С preload — браузер качает картинку
+            параллельно с HTML/CSS/JS, как только видит <link rel="preload">. */}
+        {s.heroBackground && (
+          <link
+            rel="preload"
+            as="image"
+            href={s.heroBackground}
+            fetchPriority="high"
+          />
+        )}
+        {/* Preconnect к Google Tag Manager — экономит ~100-200мс на установке соединения */}
+        {s.googleTagManager && (
+          <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="" />
+        )}
+        {/* Preconnect к Google Fonts — на всякий случай (если шрифт не self-hosted) */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}

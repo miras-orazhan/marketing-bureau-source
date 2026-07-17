@@ -29,11 +29,13 @@ export function HeroSection({ settings, onCtaClick }: HeroSectionProps) {
         className="absolute inset-0 -z-10"
         style={{ background: bg }}
       >
+        {/* Невидимый <img> нужен только для onError — чтобы переключиться на градиент,
+            если heroBackground не загрузился. Preload делается через <link rel="preload">
+            в layout.tsx head — там же, где GTM и другие head-ресурсы. */}
         {settings.heroBackground && !imageFailed && (
-           
           <img
             src={settings.heroBackground}
-            alt="Фон главной страницы"
+            alt=""
             className="hidden"
             loading="eager"
             decoding="async"
