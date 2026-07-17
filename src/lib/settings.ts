@@ -1,4 +1,4 @@
-import { db } from '@/lib/db'
+import { db, withRequestCache } from '@/lib/db'
 import { hashPassword, verifyPassword } from '@/lib/auth'
 import crypto from 'crypto'
 
@@ -74,10 +74,14 @@ const DEFAULT_SITE_NAME = 'Marketing Bureau'
  * Применяет логику "по умолчанию" для мета-данных и контента секций.
  */
 export async function getSiteSettings(): Promise<SiteSettingsPublic> {
-  let row = await db.siteSettings.findUnique({ where: { id: 'default' } })
-  if (!row) {
-    row = await db.siteSettings.create({ data: { id: 'default' } })
-  }
+  // Кеш в рамках одного запроса — getSiteSettings вызывается 3 раза
+  // (generateViewport + generateMetadata + layout body), а это 3 RTT к БД.
+  // Кешируем promise, чтобы реально был только 1 запрос.
+  return withRequestCache('siteSettings:public', async () => {
+    let row = await db.siteSettings.findUnique({ where: { id: 'default' } })
+    if (!row) {
+      row = await db.siteSettings.create({ data: { id: 'default' } })
+    }
 
   const siteName = row.siteName
   const metaTitle = row.metaTitle || `${siteName} — маркетинговое бюро в Алматы`
@@ -166,7 +170,8 @@ export async function getSiteSettings(): Promise<SiteSettingsPublic> {
     ctaBullet1: row.ctaBullet1 || 'Бесплатная консультация — 30 минут',
     ctaBullet2: row.ctaBullet2 || 'Ответим в течение рабочего дня',
     ctaBullet3: row.ctaBullet3 || 'Без навязчивых звонков и спама',
-  }
+    }
+  })
 }
 
 export async function getRawSiteSettings() {

@@ -176,32 +176,15 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
     redirect(`/cases/${safeSlug}`)
   }
 
-  const settings = await getSiteSettings()
-  const admin = await isAdmin()
   const pageSlug = resolvePageSlug(params)
 
-  // Постраничные метаданные + schema.org
-  const pageMeta = await getEffectivePageMeta(pageSlug, {
-    siteName: settings.siteName,
-    siteUrl: settings.siteUrl,
-    ogImage: settings.ogImage,
-    email: settings.email,
-    phone: settings.phone,
-  })
-
-  // Данные для публичной части
-  const [
-    featured,
-    articles,
-    news,
-    services,
-    cases,
-    faq,
-    expertise,
-    whyUs,
-    privacyContent,
-    socialLinks,
-  ] = await Promise.all([
+  // ПАРАЛЛЕЛЬНЫЙ ЗАПУСК ВСЕХ ЗАПРОСОВ К БД:
+  // Раньше было 4 последовательных await (settings → admin → pageMeta → Promise.all),
+  // каждый ~50-100мс = 200-400мс чистого ожидания. Теперь один Promise.all — все
+  // запросы идут параллельно, общее время = max(время запроса), а не сумма.
+  const [settings, admin, featured, articles, news, services, cases, faq, expertise, whyUs, privacyContent, socialLinks] = await Promise.all([
+    getSiteSettings(),
+    isAdmin(),
     getFeaturedArticle(),
     getPublishedArticles('ARTICLE', { limit: 12 }),
     getPublishedArticles('NEWS', { limit: 12 }),
@@ -214,39 +197,37 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
     getPublishedSocialLinks(),
   ])
 
-  // Данные для конкретной статьи
-  let articleData: Awaited<ReturnType<typeof getArticleBySlug>> = null
-  if (params.article) {
-    articleData = await getArticleBySlug(params.article, true)
-  }
+  // pageMeta и articleData зависят от settings и params — отдельным Promise.all
+  const [pageMeta, articleData] = await Promise.all([
+    getEffectivePageMeta(pageSlug, {
+      siteName: settings.siteName,
+      siteUrl: settings.siteUrl,
+      ogImage: settings.ogImage,
+      email: settings.email,
+      phone: settings.phone,
+    }),
+    params.article ? getArticleBySlug(params.article, true) : Promise.resolve(null),
+  ])
 
-  // Похожие материалы
-  let related: Awaited<ReturnType<typeof getPublishedArticles>> = []
-  if (articleData) {
-    related = await getPublishedArticles(articleData.type as 'ARTICLE' | 'NEWS', { limit: 4 })
-    related = related.filter((r) => r.id !== articleData!.id).slice(0, 3)
-  }
+  // Похожие материалы и schema — параллельно
+  const [related, extraSchemas] = await Promise.all([
+    articleData
+      ? getPublishedArticles(articleData.type as 'ARTICLE' | 'NEWS', { limit: 4 })
+          .then((r) => r.filter((x) => x.id !== articleData!.id).slice(0, 3))
+      : Promise.resolve([]),
+    getPageSchemas({
+      settings,
+      pageSlug: articleData ? 'article' : pageSlug,
+      pageUrl: articleData
+        ? `${(settings.siteUrl || 'https://marketingbureau.kz').replace(/\/$/, '')}/?article=${articleData.slug}`
+        : `${(settings.siteUrl || 'https://marketingbureau.kz').replace(/\/$/, '')}/${pageSlug === 'home' ? '' : `?section=${pageSlug}`}`,
+    }),
+  ])
 
-  // Данные для конкретного кейса (детальная страница)
-  let caseData: Awaited<ReturnType<typeof getPublishedCaseBySlug>> = null
-  if (params.case) {
-    caseData = await getPublishedCaseBySlug(params.case)
-  }
-
-  // Похожие кейсы
-  let relatedCases: Awaited<ReturnType<typeof getRelatedCases>> = []
-  if (caseData) {
-    relatedCases = await getRelatedCases(caseData.id, 3)
-  }
-
-  // Schema.org JSON-LD для текущей страницы (Organization, WebSite, Breadcrumb, FAQ, ItemList)
-  const baseUrl = (settings.siteUrl || 'https://marketingbureau.kz').replace(/\/$/, '')
-  const currentPageUrl = `${baseUrl}/${pageSlug === 'home' ? '' : `?section=${pageSlug}`}`
-  const extraSchemas = await getPageSchemas({
-    settings,
-    pageSlug: articleData ? 'article' : pageSlug,
-    pageUrl: articleData ? `${baseUrl}/?article=${articleData.slug}` : currentPageUrl,
-  })
+  // На этой странице кейс уже не загружаем — для /cases/<slug> есть отдельный роут.
+  // Старый код с caseData/relatedCases был мёртвый (после redirect).
+  const caseData = null
+  const relatedCases: Awaited<ReturnType<typeof getRelatedCases>> = []
 
   return (
     <Suspense

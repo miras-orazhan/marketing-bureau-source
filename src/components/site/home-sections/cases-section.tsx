@@ -45,7 +45,7 @@ export function CasesSection({ settings, items, onSeeAll, onOpenCase }: CasesSec
                       src={item.coverImage}
                       alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                     loading="lazy" decoding="async" fetchPriority="auto" />
                   </div>
                 ) : (
                   <div

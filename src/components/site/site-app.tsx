@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import { useCallback, useState, useEffect } from 'react'
 import type { SiteSettingsPublic } from '@/lib/settings'
 import type { ArticleListItem, ArticleFull } from '@/lib/articles'
@@ -15,8 +16,6 @@ import type {
 import type { EffectivePageMeta } from '@/lib/page-meta'
 import { Header } from './header'
 import { Footer } from './footer'
-import { AdminPanel } from '@/components/admin/admin-panel'
-import { AdminLogin } from '@/components/admin/admin-login'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 
@@ -33,6 +32,20 @@ import { ArticleDetail } from './article-detail'
 import { ServicesPage } from './services-page'
 import { CasesPage } from './cases-page'
 import { CaseDetail } from './case-detail'
+
+// LAZY-LOAD админ-панели: на главной она не нужна, но её прямой импорт
+// тащит в initial bundle Tiptap, framer-motion, recharts, MDX editor, DnD-kit
+// — сотни KB JavaScript, которые бьют по LCP/TBT.
+// dynamic() с ssr:false загружает код только когда админка реально нужна
+// (/?view=admin или /?view=reset).
+const AdminPanel = dynamic(
+  () => import('@/components/admin/admin-panel').then((m) => m.AdminPanel),
+  { ssr: false, loading: () => <div className="min-h-screen flex items-center justify-center text-muted-foreground">Загрузка админ-панели…</div> }
+)
+const AdminLogin = dynamic(
+  () => import('@/components/admin/admin-login').then((m) => m.AdminLogin),
+  { ssr: false, loading: () => <div className="min-h-screen flex items-center justify-center text-muted-foreground">Загрузка…</div> }
+)
 import { FaqPage } from './faq-page'
 import { PrivacyPage } from './privacy-page'
 

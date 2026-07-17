@@ -116,7 +116,7 @@ export function CaseDetail({
             src={caseItem.coverImage}
             alt={caseItem.title}
             className="w-full h-full object-cover"
-          />
+           loading="lazy" decoding="async" fetchPriority="auto" />
         </div>
       ) : (
         <div
@@ -166,7 +166,7 @@ export function CaseDetail({
                       src={r.coverImage}
                       alt={r.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                     loading="lazy" decoding="async" fetchPriority="auto" />
                   </div>
                 ) : (
                   <div

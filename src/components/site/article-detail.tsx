@@ -106,7 +106,7 @@ export function ArticleDetail({ article, settings, related, onBack, onOpen }: Ar
             src={article.coverImage}
             alt={article.title}
             className="w-full h-full object-cover"
-          />
+           loading="lazy" decoding="async" fetchPriority="auto" />
         </div>
       )}
 

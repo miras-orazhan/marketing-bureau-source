@@ -42,7 +42,7 @@ export function ArticleCard({ article, settings, onOpen, variant = 'default' }: 
             src={article.coverImage}
             alt={article.title}
             className="h-16 w-16 rounded object-cover shrink-0"
-          />
+           loading="lazy" decoding="async" fetchPriority="auto" />
         )}
         <div className="min-w-0 flex-1">
           <p className="text-xs text-muted-foreground mb-1">
@@ -74,7 +74,7 @@ export function ArticleCard({ article, settings, onOpen, variant = 'default' }: 
                   src={article.coverImage}
                   alt={article.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
+                 loading="lazy" decoding="async" fetchPriority="auto" />
               </div>
             ) : (
               <div
@@ -141,7 +141,7 @@ export function ArticleCard({ article, settings, onOpen, variant = 'default' }: 
                 src={article.coverImage}
                 alt={article.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
+               loading="lazy" decoding="async" fetchPriority="auto" />
             </div>
           ) : (
             <div

@@ -9,12 +9,17 @@ import { NavigationProgress } from "@/components/navigation-progress";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  // ВАЖНО: cyrillic subset обязателен — сайт на русском.
+  // Без него браузер грузит кириллицу из fallback-font с FOUT (flash of unstyled text),
+  // что сильно бьёт по LCP.
+  subsets: ["latin", "cyrillic"],
+  display: "swap", // показываем fallback сразу, не ждём загрузки
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
+  display: "swap",
 });
 
 /**

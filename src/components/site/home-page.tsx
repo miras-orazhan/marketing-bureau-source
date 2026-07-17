@@ -112,7 +112,7 @@ export function HomePage({
                     src={n.coverImage}
                     alt={n.title}
                     className="h-20 w-20 rounded object-cover shrink-0"
-                  />
+                   loading="lazy" decoding="async" fetchPriority="auto" />
                 ) : (
                   <div
                     className="h-20 w-20 rounded flex items-center justify-center text-white shrink-0"

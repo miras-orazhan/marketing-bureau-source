@@ -34,7 +34,7 @@ export function Header({ settings, navItems, onNavigate }: HeaderProps) {
           src={settings.logoUrl}
           alt={settings.siteName}
           className="h-10 w-auto max-w-[180px] object-contain"
-        />
+         loading="lazy" decoding="async" fetchPriority="auto" />
       )
     }
     return (

@@ -139,6 +139,9 @@ export function CtaSection({ settings, source = 'home-cta' }: CtaSectionProps) {
                 src={settings.ctaBackground!}
                 alt="Фон CTA-баннера"
                 className="hidden"
+                loading="lazy"
+                decoding="async"
+                fetchPriority="auto"
                 onError={() => setBgFailed(true)}
               />
             )}

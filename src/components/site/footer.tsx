@@ -89,7 +89,7 @@ export function Footer({ settings, socialLinks, onNavigate, onAdminClick }: Foot
                         src={s.iconImage}
                         alt={s.name}
                         className="h-full w-full object-cover"
-                      />
+                       loading="lazy" decoding="async" fetchPriority="auto" />
                     ) : s.iconName ? (
                       <DynamicIcon name={s.iconName} className="h-4 w-4" />
                     ) : (

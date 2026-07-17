@@ -35,6 +35,9 @@ export function HeroSection({ settings, onCtaClick }: HeroSectionProps) {
             src={settings.heroBackground}
             alt="Фон главной страницы"
             className="hidden"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
             onError={() => setImageFailed(true)}
           />
         )}

@@ -118,6 +118,9 @@ export function DynamicIcon({
         src={image}
         alt={alt}
         className={imgClassName || className || 'h-6 w-6 object-contain'}
+        loading="lazy"
+        decoding="async"
+        fetchPriority="auto"
         onError={(e) => {
           // Если изображение не загрузилось — скрываем, чтобы fallback сработал через CSS
           ;(e.currentTarget as HTMLImageElement).style.display = 'none'

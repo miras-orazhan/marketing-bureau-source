@@ -131,27 +131,18 @@ export default async function CasePage({ params }: { params: Params }) {
     slug = rawSlug
   }
 
-  // Загружаем кейс — если не найден или не опубликован → 404
+  // Сначала грузим кейс — если не найден, 404 сразу, без лишних запросов.
   const caseData = await getPublishedCaseBySlug(slug)
   if (!caseData) {
     notFound()
   }
 
-  // Похожие кейсы
-  const relatedCases = await getRelatedCases(caseData.id, 3)
-
-  // Загружаем остальные данные для SiteApp (нужно для Header/Footer)
-  const settings = await getSiteSettings()
-  const admin = await isAdmin()
-  const pageMeta = await getEffectivePageMeta('cases', {
-    siteName: settings.siteName,
-    siteUrl: settings.siteUrl,
-    ogImage: settings.ogImage,
-    email: settings.email,
-    phone: settings.phone,
-  })
-
+  // ПАРАЛЛЕЛЬНО: похожие кейсы + все данные для Header/Footer + settings + admin.
+  // Раньше было 5 последовательных await, теперь один Promise.all.
   const [
+    relatedCases,
+    settings,
+    admin,
     featured,
     articles,
     news,
@@ -163,6 +154,9 @@ export default async function CasePage({ params }: { params: Params }) {
     privacyContent,
     socialLinks,
   ] = await Promise.all([
+    getRelatedCases(caseData.id, 3),
+    getSiteSettings(),
+    isAdmin(),
     getFeaturedArticle(),
     getPublishedArticles('ARTICLE', { limit: 12 }),
     getPublishedArticles('NEWS', { limit: 12 }),
@@ -175,13 +169,21 @@ export default async function CasePage({ params }: { params: Params }) {
     getPublishedSocialLinks(),
   ])
 
-  // Schema.org
-  const baseUrl = (settings.siteUrl || 'https://marketingbureau.kz').replace(/\/$/, '')
-  const extraSchemas = await getPageSchemas({
-    settings,
-    pageSlug: 'cases',
-    pageUrl: `${baseUrl}/cases/${slug}`,
-  })
+  // pageMeta и schema — параллельно (зависят от settings)
+  const [pageMeta, extraSchemas] = await Promise.all([
+    getEffectivePageMeta('cases', {
+      siteName: settings.siteName,
+      siteUrl: settings.siteUrl,
+      ogImage: settings.ogImage,
+      email: settings.email,
+      phone: settings.phone,
+    }),
+    getPageSchemas({
+      settings,
+      pageSlug: 'cases',
+      pageUrl: `${(settings.siteUrl || 'https://marketingbureau.kz').replace(/\/$/, '')}/cases/${encodeURIComponent(slug)}`,
+    }),
+  ])
 
   return (
     <Suspense
