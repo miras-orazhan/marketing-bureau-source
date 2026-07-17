@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { getSiteSettings } from "@/lib/settings";
 import { AnalyticsHead, AnalyticsNoScript } from "@/components/analytics";
+import { NavigationProgress } from "@/components/navigation-progress";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -99,6 +100,8 @@ export default async function RootLayout({
       >
         {/* GTM <noscript> — должен идти сразу после открывающего <body> */}
         <AnalyticsNoScript gtmId={s.googleTagManager} />
+        {/* Индикатор загрузки при навигации между страницами */}
+        <NavigationProgress />
         <a href="#main-content" className="skip-link">
           Перейти к основному контенту
         </a>

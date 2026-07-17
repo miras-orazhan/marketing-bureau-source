@@ -104,6 +104,26 @@ export function SiteApp({
     setView(initialView)
   }, [initialView])
 
+  // Универсальный helpers для навигации — всегда строит URL ОТ КОРНЯ "/",
+  // чтобы работать с любого пути (главная, /cases/<slug>, /?section=cases и т.д.).
+  // Раньше pushUrl модифицировал текущий URL — это ломало навигацию со страниц /cases/<slug>,
+  // потому что /cases/<slug>?section=cases попадало в роут [slug] и не работало.
+  const navigateToUrl = useCallback(
+    (params: Record<string, string | undefined>) => {
+      const url = new URL('/', window.location.origin)
+      Object.entries(params).forEach(([k, v]) => {
+        if (v === undefined || v === '') url.searchParams.delete(k)
+        else url.searchParams.set(k, v)
+      })
+      const finalUrl = url.pathname + (url.search ? url.search : '')
+      router.push(finalUrl, { scroll: false })
+    },
+    [router]
+  )
+
+  // Старый pushUrl — оставлен для обратной совместимости с кодом, который
+  // действительно хочет модифицировать текущий URL (например, для статей через ?article=).
+  // В новом коде используйте navigateToUrl.
   const pushUrl = useCallback(
     (params: Record<string, string | undefined>) => {
       const url = new URL(window.location.href)
@@ -118,22 +138,22 @@ export function SiteApp({
 
   const navigateTo = useCallback(
     (target: 'home' | 'services' | 'cases' | 'about' | 'blog' | 'news' | 'faq' | 'privacy') => {
-      pushUrl({
+      navigateToUrl({
         view: undefined,
         article: undefined,
         section: target === 'home' ? undefined : target,
       })
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
-    [pushUrl]
+    [navigateToUrl]
   )
 
   const openArticle = useCallback(
     (slug: string) => {
-      pushUrl({ section: undefined, view: undefined, article: slug, case: undefined })
+      navigateToUrl({ section: undefined, view: undefined, article: slug, case: undefined })
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
-    [pushUrl]
+    [navigateToUrl]
   )
 
   const openCase = useCallback(
@@ -146,25 +166,26 @@ export function SiteApp({
   )
 
   const goCases = useCallback(() => {
-    // Можно напрямую на /cases (там редирект на ?section=cases),
-    // но используем pushUrl чтобы остаться в SPA-навигации.
-    pushUrl({ section: 'cases', view: undefined, article: undefined, case: undefined })
+    // На главную с ?section=cases — там рендерится CasesPage.
+    // Используем navigateToUrl (от корня), чтобы работало с любой страницы.
+    navigateToUrl({ section: 'cases', view: undefined, article: undefined, case: undefined })
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [pushUrl])
+  }, [navigateToUrl])
 
   const openAdmin = useCallback(() => {
-    pushUrl({ section: undefined, article: undefined, view: 'admin' })
-  }, [pushUrl])
+    navigateToUrl({ section: undefined, article: undefined, view: 'admin' })
+  }, [navigateToUrl])
 
   const exitAdmin = useCallback(() => {
-    pushUrl({ view: undefined })
+    navigateToUrl({ view: undefined })
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [pushUrl])
+  }, [navigateToUrl])
 
   const goHome = useCallback(() => {
-    pushUrl({ section: undefined, article: undefined, view: undefined, case: undefined })
+    // На главную — всегда "/" без параметров.
+    navigateToUrl({ section: undefined, article: undefined, view: undefined, case: undefined })
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [pushUrl])
+  }, [navigateToUrl])
 
   const scrollToCta = useCallback(() => {
     const el = document.getElementById('cta')
