@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { getSiteSettings } from "@/lib/settings";
+import { AnalyticsHead, AnalyticsNoScript } from "@/components/analytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -75,16 +76,29 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Загружаем настройки один раз для всего layout — нужно для GTM/GA/YM
+  const s = await getSiteSettings()
+
   return (
     <html lang="ru" suppressHydrationWarning>
+      <head>
+        {/* GTM head-скрипт / GA / Yandex.Metrika — только если заданы в настройках */}
+        <AnalyticsHead
+          gtmId={s.googleTagManager}
+          gaId={s.googleAnalytics}
+          yandexMetrikaId={s.yandexMetrika}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
+        {/* GTM <noscript> — должен идти сразу после открывающего <body> */}
+        <AnalyticsNoScript gtmId={s.googleTagManager} />
         <a href="#main-content" className="skip-link">
           Перейти к основному контенту
         </a>

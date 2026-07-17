@@ -45,6 +45,7 @@ type RawSettings = {
   robotsIndex: boolean
   googleAnalytics: string | null
   yandexMetrika: string | null
+  googleTagManager: string | null
   siteUrl: string | null
   heroTitle: string | null
   heroSubtitle: string | null
@@ -85,6 +86,7 @@ const EMPTY: RawSettings = {
   robotsIndex: true,
   googleAnalytics: null,
   yandexMetrika: null,
+  googleTagManager: null,
   siteUrl: 'https://example.com',
   heroTitle: null,
   heroSubtitle: null,
@@ -614,6 +616,20 @@ export function SiteSettingsForm() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
+                <Label htmlFor="googleTagManager">Google Tag Manager ID</Label>
+                <Input
+                  id="googleTagManager"
+                  value={data.googleTagManager || ''}
+                  onChange={(e) => setData({ ...data, googleTagManager: e.target.value || null })}
+                  placeholder="GTM-XXXXXXX"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Если задано — GTM подключается автоматически на всех страницах
+                  (head-скрипт + noscript). GA и Yandex.Metrika при этом
+                  настраиваются внутри контейнера GTM.
+                </p>
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="googleAnalytics">Google Analytics ID</Label>
                 <Input
                   id="googleAnalytics"
@@ -621,6 +637,10 @@ export function SiteSettingsForm() {
                   onChange={(e) => setData({ ...data, googleAnalytics: e.target.value || null })}
                   placeholder="G-XXXXXXX"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Подключается напрямую, только если не задан GTM. Иначе —
+                  настраивайте через GTM.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="yandexMetrika">Yandex.Metrika ID</Label>
@@ -630,6 +650,10 @@ export function SiteSettingsForm() {
                   onChange={(e) => setData({ ...data, yandexMetrika: e.target.value || null })}
                   placeholder="XXXXXXXX"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Подключается напрямую, только если не задан GTM. Иначе —
+                  настраивайте через GTM.
+                </p>
               </div>
             </CardContent>
           </Card>

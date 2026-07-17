@@ -68,6 +68,8 @@ model SiteSettings {
   robotsIndex     Boolean  @default(true)
   googleAnalytics String?
   yandexMetrika   String?
+  // Google Tag Manager ID (формат: GTM-XXXXXX) — подключается в layout.tsx
+  googleTagManager String?
   siteUrl         String?  @default("https://marketingbureau.kz")
   // Footer / About
   footerText      String?

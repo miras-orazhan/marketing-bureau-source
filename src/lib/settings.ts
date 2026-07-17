@@ -33,6 +33,7 @@ export type SiteSettingsPublic = {
   robotsIndex: boolean
   googleAnalytics: string | null
   yandexMetrika: string | null
+  googleTagManager: string | null
   siteUrl: string | null
   footerText: string
   aboutText: string | null
@@ -120,6 +121,7 @@ export async function getSiteSettings(): Promise<SiteSettingsPublic> {
     robotsIndex: row.robotsIndex,
     googleAnalytics: row.googleAnalytics,
     yandexMetrika: row.yandexMetrika,
+    googleTagManager: row.googleTagManager,
     siteUrl: row.siteUrl,
     footerText: row.footerText || `© ${new Date().getFullYear()} ${siteName}. Все права защищены.`,
     aboutText: row.aboutText,
@@ -206,6 +208,7 @@ export type SiteSettingsUpdate = Partial<{
   robotsIndex: boolean
   googleAnalytics: string | null
   yandexMetrika: string | null
+  googleTagManager: string | null
   siteUrl: string | null
   footerText: string | null
   aboutText: string | null
