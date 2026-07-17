@@ -249,6 +249,7 @@ function CaseEditor({
 }) {
   const isNew = !item?.id
   const [title, setTitle] = useState(item?.title || '')
+  const [slug, setSlug] = useState(item?.slug || '')
   const [client, setClient] = useState(item?.client || '')
   const [excerpt, setExcerpt] = useState(item?.excerpt || '')
   const [content, setContent] = useState(item?.content || '')
@@ -263,6 +264,7 @@ function CaseEditor({
   useEffect(() => {
     if (item) {
       setTitle(item.title || '')
+      setSlug(item.slug || '')
       setClient(item.client || '')
       setExcerpt(item.excerpt || '')
       setContent(item.content || '')
@@ -305,10 +307,18 @@ function CaseEditor({
       toast.error('Заголовок обязателен')
       return
     }
+    // slug обязателен — это URL кейса (/cases/<slug>).
+    // Если пустой — сгенерируем из title автоматически.
+    const finalSlug = slug.trim() || slugifyFromTitle(title.trim())
+    if (!finalSlug) {
+      toast.error('Не удалось сформировать slug')
+      return
+    }
     setSaving(true)
     try {
       const payload = {
         title: title.trim(),
+        slug: finalSlug,
         client: client.trim() || undefined,
         excerpt: excerpt.trim() || undefined,
         content,
@@ -328,6 +338,31 @@ function CaseEditor({
     } finally {
       setSaving(false)
     }
+  }
+
+  /**
+   * Простая транслитерация ru→lat + slugify.
+   * Используется только если админ не ввёл slug вручную.
+   * Админ может ввести свой (любой URL-safe) — он приоритетный.
+   */
+  function slugifyFromTitle(s: string): string {
+    const ru: Record<string, string> = {
+      а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'e', ж: 'zh',
+      з: 'z', и: 'i', й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o',
+      п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f', х: 'h', ц: 'ts',
+      ч: 'ch', ш: 'sh', щ: 'sch', ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu',
+      я: 'ya',
+    }
+    return s
+      .toLowerCase()
+      .split('')
+      .map((ch) => (ch in ru ? ru[ch] : ch))
+      .join('')
+      .replace(/[^a-z0-9\s-]/gi, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .slice(0, 100)
   }
 
   return (
@@ -358,6 +393,32 @@ function CaseEditor({
           <div className="space-y-2">
             <Label htmlFor="title">Заголовок *</Label>
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="text-lg" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="slug">
+              URL (slug) *
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                адрес страницы: /cases/&lt;slug&gt;
+              </span>
+            </Label>
+            <Input
+              id="slug"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              placeholder="например: tehno-altyn-lombard-network (латиницей, дефисы)"
+              className="font-mono text-sm"
+            />
+            <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+              <span>
+                Если оставить пустым — сгенерируется из заголовка (с транслитерацией).
+                Допускаются латиница, цифры и дефисы.
+              </span>
+              {slug && (
+                <span className="text-foreground/70 font-mono truncate max-w-[200px]">
+                  /cases/{slug}
+                </span>
+              )}
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="excerpt">Краткое описание</Label>
