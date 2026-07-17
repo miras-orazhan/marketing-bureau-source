@@ -1,11 +1,13 @@
 'use client'
 
+import Link from 'next/link'
 import { ArrowRight, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { CasePublic } from '@/lib/company-content'
 import type { SiteSettingsPublic } from '@/lib/settings'
 import { SectionHeader } from './section-header'
+import { useNavigationLoading } from '@/hooks/use-navigation-loading'
 
 type CasesSectionProps = {
   settings: SiteSettingsPublic
@@ -16,6 +18,8 @@ type CasesSectionProps = {
 }
 
 export function CasesSection({ settings, items, onSeeAll, onOpenCase }: CasesSectionProps) {
+  const isLoading = useNavigationLoading()
+
   return (
     <section id="cases" className="py-16 md:py-24 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -33,19 +37,23 @@ export function CasesSection({ settings, items, onSeeAll, onOpenCase }: CasesSec
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.slice(0, 6).map((item) => (
-              <article
+              <Link
                 key={item.id}
-                onClick={() => onOpenCase(item.slug)}
-                className="group bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow flex flex-col cursor-pointer"
+                href={`/cases/${encodeURIComponent(item.slug)}`}
+                prefetch
+                aria-disabled={isLoading}
+                className={`group bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow flex flex-col ${isLoading ? 'pointer-events-none opacity-60' : 'cursor-pointer'}`}
               >
                 {item.coverImage ? (
                   <div className="aspect-[16/10] overflow-hidden">
-                    { }
                     <img
                       src={item.coverImage}
                       alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                     loading="lazy" decoding="async" fetchPriority="auto" />
+                      loading="lazy"
+                      decoding="async"
+                      fetchPriority="auto"
+                    />
                   </div>
                 ) : (
                   <div
@@ -105,7 +113,7 @@ export function CasesSection({ settings, items, onSeeAll, onOpenCase }: CasesSec
                     </div>
                   )}
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}

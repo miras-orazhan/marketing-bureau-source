@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { ArrowRight, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -7,6 +8,7 @@ import type { CasePublic } from '@/lib/company-content'
 import type { SiteSettingsPublic } from '@/lib/settings'
 import { CtaSection } from './home-sections/cta-section'
 import { Breadcrumbs as SiteBreadcrumbs } from './breadcrumbs'
+import { useNavigationLoading } from '@/hooks/use-navigation-loading'
 
 type CasesPageProps = {
   settings: SiteSettingsPublic
@@ -17,6 +19,7 @@ type CasesPageProps = {
 }
 
 export function CasesPage({ settings, items, onContact, onOpenCase }: CasesPageProps) {
+  const isLoading = useNavigationLoading()
   return (
     <div className="container mx-auto px-4 py-16 max-w-6xl">
       {/* Хлебные крошки */}
@@ -49,10 +52,12 @@ export function CasesPage({ settings, items, onContact, onOpenCase }: CasesPageP
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {items.map((item) => (
-            <article
+            <Link
               key={item.id}
-              onClick={() => onOpenCase(item.slug)}
-              className="group bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow flex flex-col cursor-pointer"
+              href={`/cases/${encodeURIComponent(item.slug)}`}
+              prefetch
+              aria-disabled={isLoading}
+              className={`group bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow flex flex-col ${isLoading ? 'pointer-events-none opacity-60' : 'cursor-pointer'}`}
             >
               {item.coverImage ? (
                 <div className="aspect-[16/10] overflow-hidden">
@@ -120,7 +125,7 @@ export function CasesPage({ settings, items, onContact, onOpenCase }: CasesPageP
                   </div>
                 )}
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       )}
