@@ -99,15 +99,19 @@ export default async function RootLayout({
           gaId={s.googleAnalytics}
           yandexMetrikaId={s.yandexMetrika}
         />
-        {/* PRELOAD LCP-изображения — heroBackground (384KB WebP).
+        {/* PRELOAD LCP-изображения — heroBackground.
             Без этого браузер начинает загрузку только после полного разбора HTML+CSS,
             что добавляет 2-4 сек к LCP. С preload — браузер качает картинку
-            параллельно с HTML/CSS/JS, как только видит <link rel="preload">. */}
+            параллельно с HTML/CSS/JS, как только видит <link rel="preload">.
+            imagesrcset/imagesizes позволяют браузеру выбрать оптимальный размер
+            для устройства (мобильный/планшет/десктоп). */}
         {s.heroBackground && (
           <link
             rel="preload"
             as="image"
             href={s.heroBackground}
+            imageSrcSet={s.heroBackground}
+            imageSizes="100vw"
             fetchPriority="high"
           />
         )}

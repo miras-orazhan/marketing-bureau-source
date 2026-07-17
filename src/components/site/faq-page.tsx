@@ -44,7 +44,7 @@ export function FaqPage({ settings, items, onContact }: FaqPageProps) {
       </header>
 
       {items.length === 0 ? (
-        <p className="text-center text-muted-foreground py-16 border border-dashed rounded-lg">
+        <p className="text-center text-muted-foreground py-16 border border-dashed rounded-lg bg-white">
           Вопросы скоро появятся.
         </p>
       ) : (
@@ -53,7 +53,7 @@ export function FaqPage({ settings, items, onContact }: FaqPageProps) {
             <AccordionItem
               key={item.id}
               value={`item-${idx}`}
-              className="border rounded-lg px-5"
+              className="border rounded-lg px-5 bg-white shadow-sm hover:shadow-md transition-shadow"
             >
               <AccordionTrigger className="text-left font-medium hover:no-underline">
                 {item.question}

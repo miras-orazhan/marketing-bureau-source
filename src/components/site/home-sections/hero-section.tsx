@@ -16,31 +16,35 @@ export function HeroSection({ settings, onCtaClick }: HeroSectionProps) {
   const gradient = `linear-gradient(135deg, ${settings.primaryColor} 0%, ${settings.accentColor} 100%)`
   const showImage = settings.heroBackground && !imageFailed
 
-  // ОДИН фоновый слой: картинка + затемнение (rgba(0,0,0,0.5)) поверх неё в одном CSS-градиенте
-  // Если изображения нет или оно не загрузилось — показываем только градиент брендинга
-  const bg = showImage
-    ? `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${settings.heroBackground}) center/cover no-repeat`
-    : gradient
-
   return (
     <section id="hero" className="relative overflow-hidden isolate">
-      {/* ОДИН фоновый блок: картинка + затемнение в одном CSS-градиенте */}
-      <div
-        className="absolute inset-0 -z-10"
-        style={{ background: bg }}
-      >
-        {/* Невидимый <img> нужен только для onError — чтобы переключиться на градиент,
-            если heroBackground не загрузился. Preload делается через <link rel="preload">
-            в layout.tsx head — там же, где GTM и другие head-ресурсы. */}
-        {settings.heroBackground && !imageFailed && (
-          <img
-            src={settings.heroBackground}
-            alt=""
-            className="hidden"
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
-            onError={() => setImageFailed(true)}
+      {/* Фоновый слой.
+          Если есть heroBackground — используем <img> с object-cover (а не CSS background-image),
+          потому что <img> поддерживает srcset/sizes для адаптивной загрузки и лучше для LCP.
+          Затемнение накладываем отдельным gradient-overlay поверх картинки.
+          Если картинки нет или не загрузилась — fallback на gradient из настроек. */}
+      <div className="absolute inset-0 -z-10">
+        {showImage ? (
+          <>
+            <img
+              src={settings.heroBackground!}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+              onError={() => setImageFailed(true)}
+            />
+            {/* Затемнение поверх картинки для читаемости текста */}
+            <div
+              className="absolute inset-0"
+              style={{ background: 'rgba(0, 0, 0, 0.5)' }}
+            />
+          </>
+        ) : (
+          <div
+            className="absolute inset-0"
+            style={{ background: gradient }}
           />
         )}
       </div>
