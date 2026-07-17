@@ -26,7 +26,8 @@ import { getPageSchemas } from '@/lib/schema'
 // isAdmin() читает cookies — это делает страницу dynamic, но Next.js всё равно
 // может кешировать результат для не-админских запросов через unstable_cache.
 // Не форсируем dynamic — пусть Next.js сам оптимизирует.
-export const revalidate = 60  // ISR: кеш на 60 секунд, потом пересобирается
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
 type Params = Promise<{ slug: string }>
 
