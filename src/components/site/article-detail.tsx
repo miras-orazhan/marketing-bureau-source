@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { ArticleFull } from '@/lib/articles'
 import type { SiteSettingsPublic } from '@/lib/settings'
+import { Breadcrumbs as SiteBreadcrumbs } from './breadcrumbs'
 
 type ArticleDetailProps = {
   article: ArticleFull
@@ -49,6 +50,18 @@ export function ArticleDetail({ article, settings, related, onBack, onOpen }: Ar
 
   return (
     <article className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* Хлебные крошки */}
+      <div className="mb-4">
+        <SiteBreadcrumbs
+          items={[
+            { label: 'Главная', href: '/' },
+            { label: 'Блог', href: '/?section=blog' },
+            { label: article.title },
+          ]}
+          accentColor={settings.accentColor}
+        />
+      </div>
+
       <Button variant="ghost" size="sm" onClick={onBack} className="mb-6">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Назад

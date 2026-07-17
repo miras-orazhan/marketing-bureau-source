@@ -29,12 +29,19 @@ export function Header({ settings, navItems, onNavigate }: HeaderProps) {
   const LogoEl = useMemo(() => {
     if (settings.logoUrl) {
       return (
-         
+        // width/height нужны для предотвращения CLS: браузер резервирует место
+        // под картинку ДО её загрузки. h-10 в CSS = 40px, ширина вычисляется
+        // автоматически через aspect-ratio (по intrinsic размерам PNG).
         <img
           src={settings.logoUrl}
           alt={settings.siteName}
+          width={180}
+          height={40}
           className="h-10 w-auto max-w-[180px] object-contain"
-         loading="lazy" decoding="async" fetchPriority="auto" />
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
+        />
       )
     }
     return (

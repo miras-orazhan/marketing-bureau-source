@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import type { CasePublic } from '@/lib/company-content'
 import type { SiteSettingsPublic } from '@/lib/settings'
 import { CtaSection } from './home-sections/cta-section'
+import { Breadcrumbs as SiteBreadcrumbs } from './breadcrumbs'
 
 type CasesPageProps = {
   settings: SiteSettingsPublic
@@ -18,6 +19,17 @@ type CasesPageProps = {
 export function CasesPage({ settings, items, onContact, onOpenCase }: CasesPageProps) {
   return (
     <div className="container mx-auto px-4 py-16 max-w-6xl">
+      {/* Хлебные крошки */}
+      <div className="mb-6">
+        <SiteBreadcrumbs
+          items={[
+            { label: 'Главная', href: '/' },
+            { label: 'Кейсы' },
+          ]}
+          accentColor={settings.accentColor}
+        />
+      </div>
+
       <header className="text-center max-w-2xl mx-auto mb-12">
         <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: settings.primaryColor }}>
           {settings.casesSectionTitle}

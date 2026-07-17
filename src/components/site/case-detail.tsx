@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import type { CasePublic } from '@/lib/company-content'
 import type { SiteSettingsPublic } from '@/lib/settings'
 import { CtaSection } from './home-sections/cta-section'
+import { Breadcrumbs as SiteBreadcrumbs } from './breadcrumbs'
 
 type CaseDetailProps = {
   caseItem: CasePublic
@@ -54,6 +55,18 @@ export function CaseDetail({
 
   return (
     <article className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* Хлебные крошки */}
+      <div className="mb-4">
+        <SiteBreadcrumbs
+          items={[
+            { label: 'Главная', href: '/' },
+            { label: 'Кейсы', href: '/?section=cases' },
+            { label: caseItem.title },
+          ]}
+          accentColor={settings.accentColor}
+        />
+      </div>
+
       <Button variant="ghost" size="sm" onClick={onBack} className="mb-6">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Все кейсы

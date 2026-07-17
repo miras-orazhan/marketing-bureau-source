@@ -12,8 +12,16 @@ type AnalyticsScriptsProps = {
 /**
  * Аналитика: GTM, Google Analytics, Yandex.Metrika.
  *
+ * ВСЕ скрипты загружаются с strategy="lazyOnload" — это значит:
+ *   - браузер НЕ блокирует рендеринг страницы ради аналитики
+ *   - скрипты грузятся в idle-время, после полной отрисовки контента
+ *   - LCP / FCP / TBT существенно лучше
+ *
+ * Если нужна ранняя аналитика (например, отслеживать немедленный bounce-rate),
+ * можно вернуть strategy="afterInteractive" — но это ударит по LCP.
+ *
  * GTM подключается двумя частями (по инструкции Google):
- * 1. <Script> в <head> — основной скрипт (через next/script, strategy="afterInteractive")
+ * 1. <Script> в <head> — основной скрипт
  * 2. <noscript> с <iframe> — рендерится ПЕРВЫМ внутри <body>, сразу после открывающего тега.
  *
  * Google Analytics и Yandex.Metrika рендерятся только если GTM не подключён
@@ -23,7 +31,7 @@ export function AnalyticsHead({ gtmId, gaId, yandexMetrikaId }: AnalyticsScripts
   // GTM head-скрипт
   if (gtmId) {
     return (
-      <Script id="gtm-head" strategy="afterInteractive">
+      <Script id="gtm-head" strategy="lazyOnload">
         {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -41,9 +49,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <Script
         key="ga-src"
         src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-        strategy="afterInteractive"
+        strategy="lazyOnload"
       />,
-      <Script key="ga-init" id="ga-init" strategy="afterInteractive">
+      <Script key="ga-init" id="ga-init" strategy="lazyOnload">
         {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
@@ -54,7 +62,7 @@ gtag('config', '${gaId}');`}
 
   if (yandexMetrikaId) {
     scripts.push(
-      <Script key="ym" id="yandex-metrika" strategy="afterInteractive">
+      <Script key="ym" id="yandex-metrika" strategy="lazyOnload">
         {`(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
 m[i].l=1*new Date();
 for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
@@ -65,7 +73,8 @@ ym(${yandexMetrikaId}, "init", {
   clickmap:true,
   trackLinks:true,
   accurateTrackBounce:true,
-  webvisor:true
+  webvisor:true,
+  defer:true
 });`}
       </Script>
     )

@@ -9,6 +9,7 @@ import {
 import type { FaqPublic } from '@/lib/company-content'
 import type { SiteSettingsPublic } from '@/lib/settings'
 import { CtaSection } from './home-sections/cta-section'
+import { Breadcrumbs as SiteBreadcrumbs } from './breadcrumbs'
 
 type FaqPageProps = {
   settings: SiteSettingsPublic
@@ -19,6 +20,17 @@ type FaqPageProps = {
 export function FaqPage({ settings, items, onContact }: FaqPageProps) {
   return (
     <div className="container mx-auto px-4 py-16 max-w-3xl">
+      {/* Хлебные крошки */}
+      <div className="mb-6">
+        <SiteBreadcrumbs
+          items={[
+            { label: 'Главная', href: '/' },
+            { label: 'FAQ' },
+          ]}
+          accentColor={settings.accentColor}
+        />
+      </div>
+
       <header className="text-center mb-12">
         <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: settings.primaryColor }}>
           {settings.faqSectionTitle}
