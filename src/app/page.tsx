@@ -168,9 +168,12 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   const params = await searchParams
 
   // Редирект старых URL вида /?case=<slug> на новые /cases/<slug>
-  // (для SEO и обратной совместимости со старыми ссылками)
+  // (для SEO и обратной совместимости со старыми ссылками).
+  // searchParams приходят уже декодированными Next.js, но на всякий случай
+  // кодируем slug для безопасного использования в path.
   if (params.case) {
-    redirect(`/cases/${params.case}`)
+    const safeSlug = encodeURIComponent(params.case)
+    redirect(`/cases/${safeSlug}`)
   }
 
   const settings = await getSiteSettings()
