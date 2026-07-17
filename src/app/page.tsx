@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { SiteApp } from '@/components/site/site-app'
 import { getSiteSettings } from '@/lib/settings'
 import {
@@ -165,6 +166,13 @@ export async function generateMetadata({
 
 export default async function Page({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams
+
+  // Редирект старых URL вида /?case=<slug> на новые /cases/<slug>
+  // (для SEO и обратной совместимости со старыми ссылками)
+  if (params.case) {
+    redirect(`/cases/${params.case}`)
+  }
+
   const settings = await getSiteSettings()
   const admin = await isAdmin()
   const pageSlug = resolvePageSlug(params)

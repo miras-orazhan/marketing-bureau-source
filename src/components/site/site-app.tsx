@@ -138,13 +138,16 @@ export function SiteApp({
 
   const openCase = useCallback(
     (slug: string) => {
-      pushUrl({ section: undefined, view: undefined, article: undefined, case: slug })
+      // Чистый URL: /cases/<slug> вместо ?case=<slug>
+      router.push(`/cases/${slug}`)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
-    [pushUrl]
+    [router]
   )
 
   const goCases = useCallback(() => {
+    // Можно напрямую на /cases (там редирект на ?section=cases),
+    // но используем pushUrl чтобы остаться в SPA-навигации.
     pushUrl({ section: 'cases', view: undefined, article: undefined, case: undefined })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [pushUrl])
