@@ -36,7 +36,14 @@ export async function generateMetadata({
 }: {
   params: Params
 }): Promise<Metadata> {
-  const { slug } = await params
+  const { slug: rawSlug } = await params
+  // Next.js может передать slug URL-encoded (для кириллицы) — декодируем
+  let slug: string
+  try {
+    slug = decodeURIComponent(rawSlug)
+  } catch {
+    slug = rawSlug
+  }
   const s = await getSiteSettings()
 
   // Загружаем кейс для формирования title/description/OG-image
@@ -56,7 +63,7 @@ export async function generateMetadata({
   const title = `${caseTitle} — кейс${caseClient ? ` ${caseClient}` : ''} — ${s.siteName}`
   const description = caseExcerpt || s.metaDescription
   const baseUrl = (s.siteUrl || 'https://marketingbureau.kz').replace(/\/$/, '')
-  const canonical = `${baseUrl}/cases/${slug}`
+  const canonical = `${baseUrl}/cases/${encodeURIComponent(slug)}`
   const ogImage = caseCover || s.ogImage
 
   const indexable = s.robotsIndex
@@ -115,7 +122,14 @@ export async function generateMetadata({
  * Чистый URL, индексируется поисковиками.
  */
 export default async function CasePage({ params }: { params: Params }) {
-  const { slug } = await params
+  const { slug: rawSlug } = await params
+  // Декодируем URL-encoded slug (для кириллицы)
+  let slug: string
+  try {
+    slug = decodeURIComponent(rawSlug)
+  } catch {
+    slug = rawSlug
+  }
 
   // Загружаем кейс — если не найден или не опубликован → 404
   const caseData = await getPublishedCaseBySlug(slug)
